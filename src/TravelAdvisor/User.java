@@ -34,7 +34,9 @@ public class User {
 
 		}
 		
-		while (!tag.equals("1") & !tag.equals("2")& !tag.equals("3")& !tag.equals("4")& !tag.equals("5")& !tag.equals("6")) 
+		int x=1 ;
+		
+		while (!(Integer.toBinaryString(x) <= tag && tag <= 6.tostring())) 
 		{
 			System.out.println("Please enter tag: ");
 			System.out.println("1.History Buff");
