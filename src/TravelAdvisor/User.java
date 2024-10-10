@@ -13,6 +13,7 @@ public class User {
 	Scanner input = new Scanner(System.in);
 
 	public void signup() {
+
 		do {
 			System.out.println("Please enter your userId: ");
 			userId = input.nextLine();
@@ -26,28 +27,37 @@ public class User {
 
 		} while (userId.equals(password));
 
-		while (!type.equals("1") & !type.equals("2")) {
+		while (type.equals("")) {
 			System.out.println("Please enter type:");
 			System.out.println("1.admin");
 			System.out.println("2.user");
 			type = input.nextLine();
 
+			if (type.equals("1")) {
+				type = "admin";
+			} else if (type.equals("2")) {
+				type = "user";
+			} else {
+				System.out.println("Please enter from the above choices only");
+				type = "";
+			}
+
 		}
-		
-		int x=1 ;
-		
-		while (!(Integer.toBinaryString(x) <= tag && tag <= 6.tostring())) 
-		{
+
+		while (tag.equals("")) {
+			String[] allowedtaglist = { "History Buff", "Shopping Fanatic", "Beach Goer", "Urban Explorer",
+					"Nature Lover", "Family Vacationer" };
+
 			System.out.println("Please enter tag: ");
-			System.out.println("1.History Buff");
-			System.out.println("2.Shopping Fanatic");
-			System.out.println("3.Beach Goer");
-			System.out.println("4.Urban Explorer");
-			System.out.println("5.Nature Lover");
-			System.out.println("6.Family Vacationer");
+			for (int i = 0; i < allowedtaglist.length; i++) {
+				System.out.println((i + 1) + "." + allowedtaglist[i]);
+			}
+
 			tag = input.nextLine();
+			tag = ConvertToTagName(tag);
+
 		}
-		
+
 		Connection conn = null;
 		Statement statement = null;
 		ResultSet rs = null;
@@ -59,19 +69,17 @@ public class User {
 			rs = statement.executeQuery("select * from user where userId=    '" + userId + "'");
 
 			if (rs.next()) {
-				System.out.println(true);
+				System.out.println("Id and password already exit");
 			} else {
-				System.out.println(false);
+				conn.setAutoCommit(false);
+
+				statement.executeUpdate("Insert into user values ('" + userId + "', '" + password + "', '" + type
+						+ "', '" + tag + "')");
+
+				conn.commit();
+				conn.setAutoCommit(true);
+				System.out.println("signup successful");
 			}
-
-			conn.setAutoCommit(false);
-
-			statement.executeUpdate(
-					"Insert into user values ('" + userId + "', '" + password + "', '" + type + "', '" + tag + "')");
-
-			conn.commit();
-			conn.setAutoCommit(true);
-			System.out.println("signup successful");
 
 		} catch (SQLException e) {
 			System.out.println("signup creation failed!");
@@ -86,6 +94,28 @@ public class User {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+		}
+
+	}
+
+	public String ConvertToTagName(String t) {
+
+		switch (t) {
+		case "1":
+			return "History Buff";
+		case "2":
+			return "Shopping Fanatic";
+		case "3":
+			return "Beach Goer";
+		case "4":
+			return "Urban Explorer";
+		case "5":
+			return "Nature Lover";
+		case "6":
+			return "Family Vacationer";
+		default:
+			System.out.println("Please enter from the above choices only");
+			return "";
 		}
 
 	}
@@ -148,9 +178,11 @@ public class User {
 					"select * from user where userId= '" + userId + "'   and password= '" + password + "'");
 
 			if (rs.next()) {
-				System.out.println(true);
+				System.out.println("login successful");
+				Attraction attraction = new Attraction();
+				attraction.welcome(userId);
 			} else {
-				System.out.println(false);
+				System.out.println("your userId or password is wrong");
 			}
 
 		} catch (SQLException e) {

@@ -18,7 +18,6 @@ public class TravelAdvisor {
 		System.out.println("X. Exit");
 		
 		Selection = input.nextLine();
-		System.out.println();
 		
 		User user = new User();
 		
