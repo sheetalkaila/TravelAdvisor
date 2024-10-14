@@ -180,7 +180,14 @@ public class User {
 			if (rs.next()) {
 				System.out.println("login successful");
 				Attraction attraction = new Attraction();
-				attraction.welcome(userId);
+				if(rs.getString("type").equals("admin")) {
+					attraction.adminwelcome();
+				}
+				else{
+					attraction.welcome(userId);
+				}
+				
+				
 			} else {
 				System.out.println("your userId or password is wrong");
 			}

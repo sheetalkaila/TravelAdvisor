@@ -22,7 +22,7 @@ public class Attraction {
 
 		while (tag.equals("")) {
 			String[] allowedtaglist = { "History Buff", "Shopping Fanatic", "Beach Goer", "Urban Explorer",
-					"Nature Lover", "Family Vacationer" };
+					"Nature lover", "Family vacationer" };
 
 			for (int i = 0; i < allowedtaglist.length; i++) {
 				System.out.println((i + 1) + "." + allowedtaglist[i]);
@@ -84,7 +84,7 @@ public class Attraction {
 
 			System.out.println("Enter name");
 			String name = input.nextLine();//
-			String q = "select * from attraction where ";
+			String q = "select * from attraction where  status='approved' and ";
 
 			if (Selection.equalsIgnoreCase("c")) {
 				q += "city= '" + name + "' order by rating desc";//
@@ -108,7 +108,7 @@ public class Attraction {
 
 				System.out.println("Select one attraction for information");
 				String attr_inp = input.nextLine();
-				rs = statement.executeQuery("select * from attraction where attractionName = '" + attr_inp + "'");
+				rs = statement.executeQuery("select * from attraction where  status='approved' and attractionName = '" + attr_inp + "'");
 				if (rs.next()) {
 					System.out.println("Attraction Name:" + rs.getString("attractionName") + ", Description:"
 							+ rs.getString("description") + ", City:" + rs.getString("city") + ", Rating:"
@@ -165,7 +165,7 @@ public class Attraction {
 			if (choose.equalsIgnoreCase("1")) {
 				System.out.println("Q and A");
 				QA qa = new QA();
-				qa.AddQA(a,userid);
+				qa.ViewQAOptions(a,userid);
 
 			} else if (choose.equalsIgnoreCase("2")) {
 				System.out.println("review");
@@ -236,7 +236,7 @@ public class Attraction {
 					statement = conn.createStatement();
 
 					rs = statement.executeQuery(
-							"select * from attraction where city= '" + city_name + "' order by rating desc");
+							"select * from attraction where  status='approved'  and city= '" + city_name + "' order by rating desc");
 
 					while (rs.next()) {
 						System.out.println(rs.getString("attractionName"));
@@ -270,7 +270,7 @@ public class Attraction {
 					statement = conn.createStatement();
 
 					rs = statement.executeQuery(
-							"select * from attraction where tag like '%" + tag_name + "%' order by rating desc");
+							"select * from attraction where  status='approved'  and tag like '%" + tag_name + "%' order by rating desc");
 
 					while (rs.next()) {
 						System.out.println(rs.getString("attractionName"));
@@ -279,7 +279,7 @@ public class Attraction {
 					}
 					System.out.println("Select one attraction for information");
 					String attr_inp = input.nextLine();
-					rs = statement.executeQuery("select * from attraction where attractionName = '" + attr_inp + "'");
+					rs = statement.executeQuery("select * from attraction where  status='approved'  and attractionName = '" + attr_inp + "'");
 					if (rs.next()) {
 						System.out.println(rs.getString("attractionName") + ", " + rs.getString("description") + ", "
 								+ rs.getString("city") + ", " + rs.getString("rating"));
@@ -329,16 +329,18 @@ public class Attraction {
 				statement = conn.createStatement();
 				statement1 = conn.createStatement();
 
-				String q = "select * from attraction order by rating desc limit 2";
+				String q = "select * from attraction where status='approved' order by rating desc limit 2";
 				rs = statement.executeQuery(q);
 
 				// to print list
 				System.out.println("You May Like.....");
 
 				while (rs.next()) {
-					System.out.println(rs.getString("attractionName") + " : " + rs.getString("rating"));
+					System.out.println(rs.getString("attractionName") + ": Rating: " + rs.getString("rating"));
 					rs1 = statement1.executeQuery(
 							"select * from review where attractionName = '" + rs.getString("attractionName") + "'");
+					
+					System.out.println("Review");
 					while (rs1.next()) {
 						System.out.println(rs1.getString("content"));
 					}
@@ -418,7 +420,7 @@ public class Attraction {
 				  
 
 			} catch (SQLException e) {
-				System.out.println("Review creation failed!");
+				System.out.println("fav creation failed!");
 				e.printStackTrace();
 
 			} finally {
@@ -434,4 +436,88 @@ public class Attraction {
 		
 	}
 
+	public void adminwelcome() {
+		System.out.println("Attractions");
+		viewAllAttractions();
+
+		
+	}
+
+	public void viewAllAttractions() {
+		String Selection = "";
+
+			Connection conn = null;
+			Statement statement = null;
+			ResultSet rs = null;
+
+			try {
+				conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+				statement = conn.createStatement();
+
+				String q = "select * from attraction";
+				rs = statement.executeQuery(q);
+
+				while (rs.next()) {
+					System.out.println(rs.getString("attractionName")+" - "+rs.getString("status"));
+				}
+
+				System.out.println("Enter name of attraction to change the status");
+				String att_name = input.nextLine();
+				System.out.println("Enter Status : approved or reject");
+				String att_status = input.nextLine();
+				
+				changeAttractionStatus(att_name,att_status);
+
+			} catch (SQLException e) {
+				System.out.println("search failed!");
+				e.printStackTrace();
+
+			} finally {
+				try {
+					conn.close();
+					statement.close();
+					rs.close();
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	public void changeAttractionStatus(String att_name, String att_status) {
+		Connection conn = null;
+		Statement statement = null;
+	
+
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+			String q = "update attraction set status ='"+att_status+"' where attractionName='"+att_name+"'";
+			statement.executeUpdate(q);
+				
+			System.out.println("Changed Status Success.");
+			input.nextLine();
+
+
+		} catch (SQLException e) {
+			System.out.println("Changed Status failed.");
+			e.printStackTrace();
+
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+			
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	
+	
+	}
+
+	
 }

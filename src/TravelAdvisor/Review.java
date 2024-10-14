@@ -21,7 +21,7 @@ public class Review {
 	        System.out.print("Enter your review content: ");
 	        content = input.nextLine();
 	        
-	        System.out.print("Enter your score: ");
+	        System.out.print("Enter your score between 1 to 5(1 is lowest and 5 is highest): ");
 	        score = input.nextLine();	                
 	        
 	        attractionName = a.name;

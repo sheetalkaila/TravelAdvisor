@@ -15,23 +15,12 @@ public class QA {
 	String content;
 	String dateAndTime;
 	int Q_ID = 0;
+	
+	Scanner input = new Scanner(System.in);
 
-	public void AddQA(Attraction a, String userid) {
-		Scanner scanner = new Scanner(System.in);
+	public void AddAnswer(Attraction a, String userid, int qid ,String ans) {
 
-		attractionName = a.name;
-		userID = userid;
-		dateAndTime = DateAndTime.Datetime();
-
-		System.out.print("Enter the type: (Q or A) ");
-		type = scanner.nextLine();
-
-		System.out.print("Enter the content  ");
-		content = scanner.nextLine();
-
-		System.out.print("Enter the Q_ID: ");
-		Q_ID = scanner.nextInt();
-
+		String type = "A";
 		Connection conn = null;
 		Statement statement = null;
 
@@ -43,15 +32,15 @@ public class QA {
 
 			statement.executeUpdate(
 					"Insert into qanda (attractionName,	type,	userID,	content,	dateAndTime,	Q_ID) "
-							+ "values ('" + attractionName + "', '" + type + "', '" + userID + "','" + content + "','"
-							+ dateAndTime + "','" + Q_ID + "')");
+							+ "values ('" + a.name + "', '" + type + "', '" + userid + "','" + ans + "','"
+							+ DateAndTime.Datetime() + "','" + qid + "')");
 
 			conn.commit();
 			conn.setAutoCommit(true);
-			System.out.println("QA created successfully!");
+			System.out.println("Answer created successfully!");
 
 		} catch (SQLException e) {
-			System.out.println("QA creation failed!");
+			System.out.println("Answer creation failed!");
 			e.printStackTrace();
 
 		} finally {
@@ -65,35 +54,136 @@ public class QA {
 		}
 	}
 
-	public void ViewQAOptions(Attraction a, String userid2) {
-		String choose = "";
-		while (!choose.equalsIgnoreCase("x")) {
-			System.out.println("Select one from below:");
-			System.out.println("1.Q & A");
-			System.out.println("2.Write a review");
-			System.out.println("3.Save to my favorite");
-			System.out.println("x.Go back");
+	public void ViewQAOptions(Attraction a, String userid) {
+		
+		String Selection = "";
+		
+		while(!Selection.equalsIgnoreCase("x"))
+		{
+			
+		System.out.println("1. Ask a question");
+		System.out.println("2. Answer a question");
+		System.out.println("3. MainMenu");
+		System.out.println("X. Go back");
 
-			choose = input.next();
+		
+		Selection = input.nextLine();
+		
+		if (Selection.equals("1"))
+		{
+			AskQuestion(a,userid);
+		}
+		else if(Selection.equals("2"))
+		{
+			ViewQuestions(a,userid);
+		}
+		else if(Selection.equals("3"))
+		{
+			Attraction attraction = new Attraction();
+			attraction.mainmenu(attraction, userid);
+		}
+		
+		}
+		
+		
+	}
 
-			if (choose.equalsIgnoreCase("1")) {
-				System.out.println("Q and A");
-				QA qa = new QA();
-				qa.ViewQAOptions(a,userid);
-				qa.AddQA(a,userid);
+	public void ViewQuestions(Attraction a, String userid) {
+		System.out.println("Questions for attraction : " + a.name);
+		
+		Connection conn = null;
+		Statement statement = null;
+		ResultSet rs = null;
 
-			} else if (choose.equalsIgnoreCase("2")) {
-				System.out.println("review");
-				Review r = new Review();
-				r.createReview(a, userid);
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
 
-			} else if (choose.equalsIgnoreCase("3")) {
-				System.out.println("fav");
-				addAttractionToFav(userid, a.name);
+			String q = "select * from qanda where attractionname = '"+a.name+"' and userid != '"+userid+"'";
+			rs = statement.executeQuery(q);
 
+			// to print list
+			while (rs.next()) {
+				System.out.println(rs.getString("autoid") +"."+rs.getString("content"));
+
+			}
+			System.out.println("Enter question id to answer");
+			int qid= input.nextInt();
+			input.nextLine();
+			System.out.println("enter your Answer");
+			String ans= input.nextLine();
+			System.out.println(ans);
+
+			AddAnswer(a, userid, qid,ans);
+			
+			
+
+		} catch (SQLException e) {
+			System.out.println("search failed!");
+			e.printStackTrace();
+
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+				rs.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	
+
+
+		
+	}
+
+	public void AskQuestion(Attraction a, String userid) 
+
+	{
+		attractionName = a.name;
+		userID = userid;
+		dateAndTime = DateAndTime.Datetime();
+		
+		System.out.println("Please type in your question");
+		content = input.nextLine();
+		
+		Connection conn = null;
+		Statement statement = null;
+
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+			conn.setAutoCommit(false);
+
+			statement.executeUpdate(
+					"Insert into qanda (attractionName,	type,	userID,	content,	dateAndTime,	Q_ID) "
+							+ "values ('" + attractionName + "', '" + "Q" + "', '" + userID + "','" + content + "','"
+							+ dateAndTime + "','" + "0" + "')");
+
+			conn.commit();
+			conn.setAutoCommit(true);
+			System.out.println("Question inserted successfully!");
+
+		} catch (SQLException e) {
+			System.out.println("Question insertion failed!");
+			e.printStackTrace();
+
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 		}
 		
+		
+		
+		
+
 	}
 
 }
