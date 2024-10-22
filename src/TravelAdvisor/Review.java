@@ -12,68 +12,65 @@ public class Review {
 	String attractionName;
 	String userID;
 	String content;
-	String score;	
+	String score;
 	String dateAndTime;
-	
+
 	public void createReview(Attraction a, String userid) {
-		Scanner input = new Scanner(System.in);	        
-	        
-	        System.out.print("Enter your review content: ");
-	        content = input.nextLine();
-	        
-	        System.out.print("Enter your score between 1 to 5(1 is lowest and 5 is highest): ");
-	        score = input.nextLine();	                
-	        
-	        attractionName = a.name;
-	        userID = userid;
-	        
-	        dateAndTime = DateAndTime.Datetime();
-	        
-	        Connection conn = null;
-			Statement statement = null;
-			ResultSet rs = null;
+		Scanner input = new Scanner(System.in);
 
+		System.out.print("Enter your review content: ");
+		content = input.nextLine();
+
+		System.out.print("Enter your score between 1 to 5(1 is lowest and 5 is highest): ");
+		score = input.nextLine();
+
+		attractionName = a.name;
+		userID = userid;
+
+		dateAndTime = DateAndTime.Datetime();
+
+		Connection conn = null;
+		Statement statement = null;
+		ResultSet rs = null;
+
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+			conn.setAutoCommit(false);
+
+			statement.executeUpdate(
+					"Insert into review (attractionName,	userID,	content,	score,	dateAndTime) values ('"
+							+ attractionName + "', '" + userID + "', '" + content + "','" + score + "','" + dateAndTime
+							+ "')");
+
+			rs = statement.executeQuery(
+					"select avg(score) avgScore from review where attractionName = '" + attractionName + "'");
+			double avgScore = 0;
+			if (rs.next()) {
+				avgScore = Double.parseDouble(rs.getString("avgScore"));
+			}
+			statement.executeUpdate(
+					"update attraction set rating =" + avgScore + " where attractionName = '" + attractionName + "'");
+
+			conn.commit();
+			conn.setAutoCommit(true);
+			System.out.println("Review created successfully!");
+
+		} catch (SQLException e) {
+			System.out.println("Review creation failed!");
+			e.printStackTrace();
+
+		} finally {
 			try {
-				conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
-				statement = conn.createStatement();
-
-				conn.setAutoCommit(false);
-
-				statement.executeUpdate("Insert into review (attractionName,	userID,	content,	score,	dateAndTime) values ('" + attractionName + "', '" + userID + "', '"
-						+ content + "','" + score + "','" + dateAndTime + "')");
-				
-				rs = statement.executeQuery("select avg(score) avgScore from review where attractionName = '" + attractionName + "'");
-				double avgScore = 0;
-				if(rs.next()) {
-					avgScore = Double.parseDouble(rs.getString("avgScore"));
-				}
-				statement.executeUpdate("update attraction set rating ="+ avgScore +" where attractionName = '" + attractionName + "'");
-				
-
-				conn.commit();
-				conn.setAutoCommit(true);
-				  System.out.println("Review created successfully!");
+				conn.close();
+				statement.close();
 
 			} catch (SQLException e) {
-				System.out.println("Review creation failed!");
 				e.printStackTrace();
-
-			} finally {
-				try {
-					conn.close();
-					statement.close();
-
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
-	        
-	        
-	      
-		
+		}
+
 	}
-
-
-
 
 }

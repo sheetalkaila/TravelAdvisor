@@ -79,6 +79,8 @@ public class User {
 				conn.commit();
 				conn.setAutoCommit(true);
 				System.out.println("signup successful");
+				Attraction attraction = new Attraction();
+				attraction.welcome(userId);
 			}
 
 		} catch (SQLException e) {
@@ -180,14 +182,12 @@ public class User {
 			if (rs.next()) {
 				System.out.println("login successful");
 				Attraction attraction = new Attraction();
-				if(rs.getString("type").equals("admin")) {
+				if (rs.getString("type").equals("admin")) {
 					attraction.adminwelcome();
-				}
-				else{
+				} else {
 					attraction.welcome(userId);
 				}
-				
-				
+
 			} else {
 				System.out.println("your userId or password is wrong");
 			}

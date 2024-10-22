@@ -108,7 +108,8 @@ public class Attraction {
 
 				System.out.println("Select one attraction for information");
 				String attr_inp = input.nextLine();
-				rs = statement.executeQuery("select * from attraction where  status='approved' and attractionName = '" + attr_inp + "'");
+				rs = statement.executeQuery(
+						"select * from attraction where  status='approved' and attractionName = '" + attr_inp + "'");
 				if (rs.next()) {
 					System.out.println("Attraction Name:" + rs.getString("attractionName") + ", Description:"
 							+ rs.getString("description") + ", City:" + rs.getString("city") + ", Rating:"
@@ -165,7 +166,7 @@ public class Attraction {
 			if (choose.equalsIgnoreCase("1")) {
 				System.out.println("Q and A");
 				QA qa = new QA();
-				qa.ViewQAOptions(a,userid);
+				qa.ViewQAOptions(a, userid);
 
 			} else if (choose.equalsIgnoreCase("2")) {
 				System.out.println("review");
@@ -181,7 +182,6 @@ public class Attraction {
 
 		return choose;
 	}
-
 
 	public void addAttractionToFav(String userid, String attName) {
 		Connection conn = null;
@@ -235,8 +235,8 @@ public class Attraction {
 					conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 					statement = conn.createStatement();
 
-					rs = statement.executeQuery(
-							"select * from attraction where  status='approved'  and city= '" + city_name + "' order by rating desc");
+					rs = statement.executeQuery("select * from attraction where  status='approved'  and city= '"
+							+ city_name + "' order by rating desc");
 
 					while (rs.next()) {
 						System.out.println(rs.getString("attractionName"));
@@ -269,8 +269,8 @@ public class Attraction {
 					conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 					statement = conn.createStatement();
 
-					rs = statement.executeQuery(
-							"select * from attraction where  status='approved'  and tag like '%" + tag_name + "%' order by rating desc");
+					rs = statement.executeQuery("select * from attraction where  status='approved'  and tag like '%"
+							+ tag_name + "%' order by rating desc");
 
 					while (rs.next()) {
 						System.out.println(rs.getString("attractionName"));
@@ -279,7 +279,9 @@ public class Attraction {
 					}
 					System.out.println("Select one attraction for information");
 					String attr_inp = input.nextLine();
-					rs = statement.executeQuery("select * from attraction where  status='approved'  and attractionName = '" + attr_inp + "'");
+					rs = statement
+							.executeQuery("select * from attraction where  status='approved'  and attractionName = '"
+									+ attr_inp + "'");
 					if (rs.next()) {
 						System.out.println(rs.getString("attractionName") + ", " + rs.getString("description") + ", "
 								+ rs.getString("city") + ", " + rs.getString("rating"));
@@ -339,7 +341,7 @@ public class Attraction {
 					System.out.println(rs.getString("attractionName") + ": Rating: " + rs.getString("rating"));
 					rs1 = statement1.executeQuery(
 							"select * from review where attractionName = '" + rs.getString("attractionName") + "'");
-					
+
 					System.out.println("Review");
 					while (rs1.next()) {
 						System.out.println(rs1.getString("content"));
@@ -367,7 +369,9 @@ public class Attraction {
 			System.out.println("C. Create an attraction");
 			System.out.println("S. Search for an attraction");
 			System.out.println("F. My Favorite");
-			System.out.println("N. Notification");
+			Notification n = new Notification();
+
+			System.out.println("N. Notification (" + n.getNotification(userid) + ")");
 			System.out.println("X. Exit");
 
 			Selection = input.nextLine();
@@ -391,6 +395,7 @@ public class Attraction {
 
 			} else if (Selection.equals("n")) {
 				System.out.println("Notification");
+				n.changeNotificationtoRead(userid);
 
 			}
 
@@ -398,108 +403,103 @@ public class Attraction {
 	}
 
 	public void getfavAttraction(String userid) {
-		  Connection conn = null;
-			Statement statement = null;
-			ResultSet rs = null;
+		Connection conn = null;
+		Statement statement = null;
+		ResultSet rs = null;
 
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+			conn.setAutoCommit(false);
+
+			rs = statement.executeQuery("select *  from favorite where userid = '" + userid + "'");
+
+			if (rs.next()) {
+				System.out.println("myfavAttraction : " + rs.getString("attractionName"));
+			} else {
+				System.out.println("No favorite attraction yet.");
+			}
+			conn.commit();
+			conn.setAutoCommit(true);
+
+		} catch (SQLException e) {
+			System.out.println("fav creation failed!");
+			e.printStackTrace();
+
+		} finally {
 			try {
-				conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
-				statement = conn.createStatement();
-
-				conn.setAutoCommit(false);
-
-				rs = statement.executeQuery("select *  from favorite where userid = '" + userid + "'");
-
-				if(rs.next()) {
-					System.out.println("myfavAttraction : " +rs.getString("attractionName"));
-				}else {
-					System.out.println("No favorite attraction yet.");
-				}
-				conn.commit();
-				conn.setAutoCommit(true);
-				  
+				conn.close();
+				statement.close();
 
 			} catch (SQLException e) {
-				System.out.println("fav creation failed!");
 				e.printStackTrace();
-
-			} finally {
-				try {
-					conn.close();
-					statement.close();
-
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
-	        
-		
+		}
+
 	}
 
 	public void adminwelcome() {
 		System.out.println("Attractions");
 		viewAllAttractions();
 
-		
 	}
 
 	public void viewAllAttractions() {
 		String Selection = "";
 
-			Connection conn = null;
-			Statement statement = null;
-			ResultSet rs = null;
-
-			try {
-				conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
-				statement = conn.createStatement();
-
-				String q = "select * from attraction";
-				rs = statement.executeQuery(q);
-
-				while (rs.next()) {
-					System.out.println(rs.getString("attractionName")+" - "+rs.getString("status"));
-				}
-
-				System.out.println("Enter name of attraction to change the status");
-				String att_name = input.nextLine();
-				System.out.println("Enter Status : approved or reject");
-				String att_status = input.nextLine();
-				
-				changeAttractionStatus(att_name,att_status);
-
-			} catch (SQLException e) {
-				System.out.println("search failed!");
-				e.printStackTrace();
-
-			} finally {
-				try {
-					conn.close();
-					statement.close();
-					rs.close();
-
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
-
-	public void changeAttractionStatus(String att_name, String att_status) {
 		Connection conn = null;
 		Statement statement = null;
-	
+		ResultSet rs = null;
 
 		try {
 			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 			statement = conn.createStatement();
 
-			String q = "update attraction set status ='"+att_status+"' where attractionName='"+att_name+"'";
+			String q = "select * from attraction";
+			rs = statement.executeQuery(q);
+
+			while (rs.next()) {
+				System.out.println(rs.getString("attractionName") + " - " + rs.getString("status"));
+			}
+
+			System.out.println("Enter name of attraction to change the status");
+			String att_name = input.nextLine();
+			System.out.println("Enter Status : approved or reject");
+			String att_status = input.nextLine();
+
+			changeAttractionStatus(att_name, att_status);
+
+		} catch (SQLException e) {
+			System.out.println("search failed!");
+			e.printStackTrace();
+
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+				rs.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void changeAttractionStatus(String att_name, String att_status) {
+		Connection conn = null;
+		Statement statement = null;
+
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+			String q = "update attraction set status ='" + att_status + "' where attractionName='" + att_name + "'";
 			statement.executeUpdate(q);
-				
+
 			System.out.println("Changed Status Success.");
 			input.nextLine();
-
 
 		} catch (SQLException e) {
 			System.out.println("Changed Status failed.");
@@ -509,15 +509,12 @@ public class Attraction {
 			try {
 				conn.close();
 				statement.close();
-			
 
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-	
-	
+
 	}
 
-	
 }
