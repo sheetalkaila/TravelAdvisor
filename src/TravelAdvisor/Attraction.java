@@ -334,7 +334,7 @@ public class Attraction {
 				statement = conn.createStatement();
 
 
-				String q = "select * from attraction where status='approved' and tag='"+tag+"' order by rating desc limit 2";//add user tag in query, attractionname, save in arraylist
+				String q = "select * from attraction where status='approved' and tag='"+tag+"' order by rating desc limit 2";
 				rs = statement.executeQuery(q);
 
 				// to print list
@@ -345,16 +345,21 @@ public class Attraction {
 				while (rs.next()) {
 					Attraction aa = new Attraction();
 					aa.name = rs.getString("attractionName");
+					aa.tag = rs.getString("tag");
 					aa.city= rs.getString("city");
-					//........
+					aa.desc = rs.getString("description");
+					aa.rating = rs.getDouble("rating");
+					aa.Creator = rs.getString("creator");
 					a.add(aa);
 				}
 				
 				int c = 0;
 				if(a.size()>0) {
-				for(Attraction x : a) {
-					System.out.println(c++ +"."+ x.name);
+				for(int i = 0;i<a.size();i++) {
+					System.out.println(++c +"."+ a.get(i).name);
+					if(c>=2)break;
 				}}
+				
 
 			} catch (SQLException e) {
 				System.out.println("search failed!");
@@ -373,7 +378,6 @@ public class Attraction {
 				}
 			}
 
-			System.out.println("Please make your selection: ");
 			System.out.println("C. Create an attraction");
 			System.out.println("S. Search for an attraction");
 			System.out.println("F. My Favorite");
@@ -381,14 +385,15 @@ public class Attraction {
 
 			System.out.println("N. Notification (" + n.getNotification(userid) + ")");
 			System.out.println("X. Exit");
+			System.out.println("Please make your selection: ");
 
 			Selection = input.nextLine();
 
 			if (Selection.equals("1")) {
-				if(a.size()>0)System.out.println(a.get(0));
+				if(a.size()>0)System.out.println("AttractionName-"+a.get(0).name+",Tag-"+a.get(0).tag+",City-"+a.get(0).city+",Description-"+a.get(0).desc+",Rating-"+a.get(0).rating+",Creator-"+a.get(0).Creator);
 
 			} else if (Selection.equals("2")) {
-				if(a.size()>1)System.out.println(a.get(1));
+				if(a.size()>1)System.out.println("AttractionName-"+a.get(1).name+",Tag-"+a.get(1).tag+",City-"+a.get(1).city+",Description-"+a.get(1).desc+",Rating-"+a.get(1).rating+",Creator-"+a.get(1).Creator);
 
 			} else if (Selection.equals("c")) {
 				createAttraction(userid);

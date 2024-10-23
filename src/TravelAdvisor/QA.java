@@ -96,8 +96,7 @@ public class QA {
 			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 			statement = conn.createStatement();
 
-			String q = "select * from qanda where attractionname = '" + a.name + "' and userid != '" + userid
-					+ "' and Q_ID = 0 ";// remove userid from query
+			String q = "select * from qanda where attractionname = '" + a.name +  "' and Q_ID = 0 ";
 			rs = statement.executeQuery(q);
 
 			// to print list
