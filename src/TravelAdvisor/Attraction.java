@@ -121,11 +121,12 @@ public class Attraction {
 				a.desc = rs.getString("description");
 				a.city = rs.getString("city");
 				a.rating = Double.parseDouble(rs.getString("rating"));
+				a.tag = rs.getString("tag");
 
 				String x = "";
 				do {
 
-					x = mainmenu(a, userid);
+					x = mainmenu(a,userid);
 
 				} while (x.equalsIgnoreCase("x"));
 
@@ -177,7 +178,7 @@ public class Attraction {
 			}
 			else if (choose.equalsIgnoreCase("x")) {
 				Attraction attraction = new Attraction();
-				attraction.welcome(userid);
+				attraction.welcome(userid,a.tag);
 				
 
 			}
@@ -317,39 +318,43 @@ public class Attraction {
 
 	}
 
-	public void welcome(String userid) {
-
+	public void welcome(String userid, String tag) {
+		List<Attraction> a = new ArrayList<>();
 		String Selection = "";
 
 		while (!Selection.equalsIgnoreCase("x")) {
 
 			Connection conn = null;
 			Statement statement = null;
-			Statement statement1 = null;
 			ResultSet rs = null;
-			ResultSet rs1 = null;
+
 
 			try {
 				conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 				statement = conn.createStatement();
-				statement1 = conn.createStatement();
 
-				String q = "select * from attraction where status='approved' order by rating desc limit 2";//add user tag in query, attractionname, save in arraylist
+
+				String q = "select * from attraction where status='approved' and tag='"+tag+"' order by rating desc limit 2";//add user tag in query, attractionname, save in arraylist
 				rs = statement.executeQuery(q);
 
 				// to print list
 				System.out.println("You May Like.....");
+			
+				
 
 				while (rs.next()) {
-					System.out.println(rs.getString("attractionName") + ": Rating: " + rs.getString("rating"));
-					rs1 = statement1.executeQuery(
-							"select * from review where attractionName = '" + rs.getString("attractionName") + "'");
-
-					System.out.println("Review");
-					while (rs1.next()) {
-						System.out.println(rs1.getString("content"));
-					}
+					Attraction aa = new Attraction();
+					aa.name = rs.getString("attractionName");
+					aa.city= rs.getString("city");
+					//........
+					a.add(aa);
 				}
+				
+				int c = 0;
+				if(a.size()>0) {
+				for(Attraction x : a) {
+					System.out.println(c++ +"."+ x.name);
+				}}
 
 			} catch (SQLException e) {
 				System.out.println("search failed!");
@@ -359,9 +364,9 @@ public class Attraction {
 				try {
 					conn.close();
 					statement.close();
-					statement1.close();
+
 					rs.close();
-					rs1.close();
+			
 
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -380,10 +385,10 @@ public class Attraction {
 			Selection = input.nextLine();
 
 			if (Selection.equals("1")) {
-				System.out.println("attraction1");
+				if(a.size()>0)System.out.println(a.get(0));
 
 			} else if (Selection.equals("2")) {
-				System.out.println("attraction2");
+				if(a.size()>1)System.out.println(a.get(1));
 
 			} else if (Selection.equals("c")) {
 				createAttraction(userid);

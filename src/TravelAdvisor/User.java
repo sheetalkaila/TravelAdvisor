@@ -80,7 +80,7 @@ public class User {
 				conn.setAutoCommit(true);
 				System.out.println("signup successful");
 				Attraction attraction = new Attraction();
-				attraction.welcome(userId);
+				attraction.welcome(userId,tag);
 			}
 
 		} catch (SQLException e) {
@@ -181,11 +181,12 @@ public class User {
 
 			if (rs.next()) {
 				System.out.println("login successful");
+				String t = rs.getString("tag");
 				Attraction attraction = new Attraction();
 				if (rs.getString("type").equals("admin")) {
-					attraction.adminwelcome();
+					attraction.welcome(userId,t);
 				} else {
-					attraction.welcome(userId);
+					attraction.welcome(userId,t);
 				}
 
 			} else {
