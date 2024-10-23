@@ -40,9 +40,6 @@ public class Attraction {
 		System.out.println("Enter desc:");
 		desc = input.nextLine();
 
-		System.out.println("Enter rating:");
-		rating = input.nextDouble();
-
 		Connection conn = null;
 		Statement statement = null;
 
@@ -53,7 +50,7 @@ public class Attraction {
 			conn.setAutoCommit(false);
 
 			statement.executeUpdate("Insert into attraction values ('" + name + "', '" + tag + "', '" + city + "', '"
-					+ desc + "','" + rating + "','" + userId + "','underProcess')");
+					+ desc + "','" + "0" + "','" + userId + "','underProcess')");
 
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -176,6 +173,12 @@ public class Attraction {
 			} else if (choose.equalsIgnoreCase("3")) {
 				System.out.println("fav");
 				addAttractionToFav(userid, a.name);
+
+			}
+			else if (choose.equalsIgnoreCase("x")) {
+				Attraction attraction = new Attraction();
+				attraction.welcome(userid);
+				
 
 			}
 		}
@@ -331,7 +334,7 @@ public class Attraction {
 				statement = conn.createStatement();
 				statement1 = conn.createStatement();
 
-				String q = "select * from attraction where status='approved' order by rating desc limit 2";
+				String q = "select * from attraction where status='approved' order by rating desc limit 2";//add user tag in query, attractionname, save in arraylist
 				rs = statement.executeQuery(q);
 
 				// to print list
@@ -444,6 +447,7 @@ public class Attraction {
 		viewAllAttractions();
 
 	}
+
 
 	public void viewAllAttractions() {
 		String Selection = "";

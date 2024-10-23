@@ -1,6 +1,7 @@
 package TravelAdvisor;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +11,7 @@ import java.util.Scanner;
 public class Notification {
 
 	String userID;
-	String dateAndTime;
+	Date dateAndTime;
 	String content;
 	String status;
 	int Q_ID = 0;

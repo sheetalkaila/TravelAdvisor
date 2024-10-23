@@ -1,6 +1,7 @@
 package TravelAdvisor;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ public class QA {
 	String type;
 	String userID;
 	String content;
-	String dateAndTime;
+	Date dateAndTime;
 	int Q_ID = 0;
 
 	Scanner input = new Scanner(System.in);
@@ -30,14 +31,11 @@ public class QA {
 
 			conn.setAutoCommit(false);
 
-			statement.executeUpdate(
-					"Insert into qanda (attractionName,	type,	userID,	content,	dateAndTime,	Q_ID) "
-							+ "values ('" + a.name + "', '" + type + "', '" + userid + "','" + ans + "','"
-							+ DateAndTime.Datetime() + "','" + qid + "')");
+			statement.executeUpdate("Insert into qanda (attractionName,	type,	userID,	content,	Q_ID) "
+					+ "values ('" + a.name + "', '" + type + "', '" + userid + "','" + ans + "','" + qid + "')");
 
-			statement.executeUpdate(
-					"Insert into Notification (userID, Q_ID, dateAndTime, content, status	) " + "values ('" + userid
-							+ "', '" + qid + "', '" + DateAndTime.Datetime() + "','" + ans + "','" + "unread" + "')");
+			statement.executeUpdate("Insert into Notification (userID, Q_ID, content, status	) " + "values ('"
+					+ userid + "', '" + qid + "','" + ans + "','" + "unread" + "')");
 
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -99,7 +97,7 @@ public class QA {
 			statement = conn.createStatement();
 
 			String q = "select * from qanda where attractionname = '" + a.name + "' and userid != '" + userid
-					+ "' and Q_ID = 0 ";
+					+ "' and Q_ID = 0 ";// remove userid from query
 			rs = statement.executeQuery(q);
 
 			// to print list
@@ -138,7 +136,6 @@ public class QA {
 	{
 		attractionName = a.name;
 		userID = userid;
-		dateAndTime = DateAndTime.Datetime();
 
 		System.out.println("Please type in your question");
 		content = input.nextLine();
@@ -153,9 +150,8 @@ public class QA {
 			conn.setAutoCommit(false);
 
 			statement.executeUpdate(
-					"Insert into qanda (attractionName,	type,	userID,	content,	dateAndTime,	Q_ID) "
-							+ "values ('" + attractionName + "', '" + "Q" + "', '" + userID + "','" + content + "','"
-							+ dateAndTime + "','" + "0" + "')");
+					"Insert into qanda (attractionName,	type,	userID,	content,	Q_ID) " + "values ('"
+							+ attractionName + "', '" + "Q" + "', '" + userID + "','" + content + "','" + "0" + "')");
 
 			conn.commit();
 			conn.setAutoCommit(true);

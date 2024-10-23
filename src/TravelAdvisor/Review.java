@@ -1,6 +1,7 @@
 package TravelAdvisor;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ public class Review {
 	String userID;
 	String content;
 	String score;
-	String dateAndTime;
+	Date dateAndTime;
 
 	public void createReview(Attraction a, String userid) {
 		Scanner input = new Scanner(System.in);
@@ -27,8 +28,6 @@ public class Review {
 		attractionName = a.name;
 		userID = userid;
 
-		dateAndTime = DateAndTime.Datetime();
-
 		Connection conn = null;
 		Statement statement = null;
 		ResultSet rs = null;
@@ -39,10 +38,8 @@ public class Review {
 
 			conn.setAutoCommit(false);
 
-			statement.executeUpdate(
-					"Insert into review (attractionName,	userID,	content,	score,	dateAndTime) values ('"
-							+ attractionName + "', '" + userID + "', '" + content + "','" + score + "','" + dateAndTime
-							+ "')");
+			statement.executeUpdate("Insert into review (attractionName,	userID,	content,	score) values ('"
+					+ attractionName + "', '" + userID + "', '" + content + "','" + score + "')");
 
 			rs = statement.executeQuery(
 					"select avg(score) avgScore from review where attractionName = '" + attractionName + "'");
