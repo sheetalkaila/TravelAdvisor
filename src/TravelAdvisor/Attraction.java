@@ -220,7 +220,7 @@ public class Attraction {
 
 	}
 
-	public void searchedAttraction_() {
+	public void searchedAttraction_admin() {
 		String Selection = "";
 
 		while (!Selection.equalsIgnoreCase("t") & !Selection.equalsIgnoreCase("c")) {
@@ -239,12 +239,20 @@ public class Attraction {
 					conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 					statement = conn.createStatement();
 
-					rs = statement.executeQuery("select * from attraction where  status='approved'  and city= '"
+					rs = statement.executeQuery("select * from attraction where city= '"
 							+ city_name + "' order by rating desc");
 
 					while (rs.next()) {
 						System.out.println(rs.getString("attractionName"));
 					}
+					
+					
+					System.out.println("Enter name of attraction to change the status");
+					String att_name = input.nextLine();
+					System.out.println("Enter Status : approved or reject");
+					String att_status = input.nextLine();
+
+					changeAttractionStatus(att_name, att_status);
 
 				} catch (SQLException e) {
 					System.out.println("search failed!");
@@ -273,7 +281,7 @@ public class Attraction {
 					conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 					statement = conn.createStatement();
 
-					rs = statement.executeQuery("select * from attraction where  status='approved'  and tag like '%"
+					rs = statement.executeQuery("select * from attraction where tag like '%"
 							+ tag_name + "%' order by rating desc");
 
 					while (rs.next()) {
@@ -296,6 +304,13 @@ public class Attraction {
 						System.out.println(attr_inp + " not found.");
 
 					}
+					
+					System.out.println("Enter name of attraction to change the status");
+					String att_name = input.nextLine();
+					System.out.println("Enter Status : approved or reject");
+					String att_status = input.nextLine();
+
+					changeAttractionStatus(att_name, att_status);
 
 				} catch (SQLException e) {
 					System.out.println("search failed!");
@@ -400,6 +415,8 @@ public class Attraction {
 
 			} else if (Selection.equals("s")) {
 				System.out.println("searching Attraction .........");
+				if(userid.equals("admin"))searchedAttraction_admin();
+				else
 				searchedAttraction(userid);
 
 			} else if (Selection.equals("f")) {
@@ -416,25 +433,52 @@ public class Attraction {
 	}
 
 	public void getfavAttraction(String userid) {
+		List<Attraction> a = new ArrayList<>();
+		//System.out.println(userid+"--------------------------");
 		Connection conn = null;
 		Statement statement = null;
 		ResultSet rs = null;
+		int Selection = -1;
 
 		try {
 			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
 			statement = conn.createStatement();
 
-			conn.setAutoCommit(false);
 
-			rs = statement.executeQuery("select *  from favorite where userid = '" + userid + "'");
+			rs = statement.executeQuery("select a.*  from favorite f, attraction a where f.userid = '" + userid + "' and f.attractionname =a.attractionname");
+			
 
-			if (rs.next()) {
-				System.out.println("myfavAttraction : " + rs.getString("attractionName"));
-			} else {
-				System.out.println("No favorite attraction yet.");
+			while (rs.next()) {
+				Attraction aa = new Attraction();
+				aa.name = rs.getString("attractionName");
+				aa.tag = rs.getString("tag");
+				aa.city= rs.getString("city");
+				aa.desc = rs.getString("description");
+				aa.rating = rs.getDouble("rating");
+				aa.Creator = rs.getString("creator");
+				a.add(aa);
 			}
-			conn.commit();
-			conn.setAutoCommit(true);
+			
+			int c = 0;
+			if(a.size()>0) {
+			for(int i = 0;i<a.size();i++) {
+				System.out.println(++c +"."+ a.get(i).name);
+			}}
+			
+			if(a.size() == 0) System.out.println("No fav attraction yet");
+			else {
+				System.out.println("Please make your selection for details: ");
+				Selection = Integer.parseInt(input.nextLine()) -1;			
+				System.out.println("AttractionName-"+a.get(Selection).name+",Tag-"+a.get(Selection).tag+",City-"+a.get(Selection).city+",Description-"+a.get(Selection).desc+",Rating-"+a.get(Selection).rating+",Creator-"+a.get(Selection).Creator);			
+				System.out.println("********Review*********");
+				Review r = new Review();
+				r.getallattrreview(a.get(Selection).name);
+			}
+			
+	
+					
+			//
+			
 
 		} catch (SQLException e) {
 			System.out.println("fav creation failed!");

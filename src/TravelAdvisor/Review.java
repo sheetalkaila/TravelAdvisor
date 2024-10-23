@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Review {
@@ -56,6 +58,61 @@ public class Review {
 
 		} catch (SQLException e) {
 			System.out.println("Review creation failed!");
+			e.printStackTrace();
+
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void getallattrreview(String attname) {
+		List<Review> a = new ArrayList<>();
+		Connection conn = null;
+		Statement statement = null;
+		ResultSet rs = null;
+
+		try {
+			conn = DriverManager.getConnection(DBConnection.url, DBConnection.username, DBConnection.password);
+			statement = conn.createStatement();
+
+
+			rs = statement.executeQuery("select *  from review a where attractionname ='"+attname+"'");
+			
+
+			while (rs.next()) {
+				Review aa = new Review();
+				aa.userID = rs.getString("userID");
+				aa.content = rs.getString("content");
+				aa.score= rs.getString("score");
+				aa.dateAndTime = rs.getDate("dateAndTime");
+				a.add(aa);
+			}
+						
+			if(a.size() == 0) System.out.println("No Reviews yet");
+			else {
+				for(int i = 0;i<a.size();i++) {
+					System.out.println("User-"+a.get(i).userID);
+					System.out.println("Score-"+a.get(i).score);
+					System.out.println("Content-"+a.get(i).content);
+					System.out.println("Date-"+a.get(i).dateAndTime);
+					System.out.println("---------------------");
+				}}
+		
+			
+	
+					
+			//
+			
+
+		} catch (SQLException e) {
+			System.out.println("fav creation failed!");
 			e.printStackTrace();
 
 		} finally {
